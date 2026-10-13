@@ -19,6 +19,12 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    # Without this, a destroyed workspace is only soft-deleted for 14 days and
+    # recreating one with the same name fails.
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
+  }
   resource_provider_registrations = "none"
 }

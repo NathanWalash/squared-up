@@ -4,7 +4,7 @@ A small kanban board deployed to Azure with Terraform, built as a hands-on way t
 
 The infrastructure is built step by step in small modules. The app starts simple: three columns, cards you can move between them. Recurring and scheduled cards come after that.
 
-> **Status:** the Azure platform (including PostgreSQL) is built and running a placeholder container. The kanban app works locally and is not deployed yet.
+> **Status:** v1 is deployed. The kanban runs on Azure Container Apps with its data in Azure Database for PostgreSQL, all built with Terraform. There is no sign-in yet, so the live site is only up while I am working on it.
 
 ## Run the app locally
 
@@ -30,12 +30,17 @@ flowchart LR
 
     subgraph azure[Azure, resource group rg-squaredup-dev]
         subgraph env[Container Apps environment]
-            app[Container App]
+            app[Container App: kanban]
+            job[Container App Job: migrations]
         end
+        db[(PostgreSQL Flexible Server)]
         acr[(Container Registry)]
         id{{Managed identity: AcrPull}}
         logs[(Log Analytics)]
+        app -->|cards| db
+        job -->|creates tables| db
         app -. pulls image .-> acr
+        job -. pulls image .-> acr
         id -. authorises .-> acr
         app --- id
         env -->|logs| logs
@@ -56,26 +61,31 @@ The app pulls its image from a private registry using a managed identity, so the
 | Logs | Log Analytics workspace (module `monitoring`) |
 | Image storage and pull identity | Container Registry, user-assigned managed identity, `AcrPull` role (module `registry`) |
 | Hosting | Container Apps environment and app, scale to zero (module `app`) |
+| Database | Azure Database for PostgreSQL Flexible Server, with a generated admin password (module `database`) |
+| Migrations | A manually triggered Container App Job that runs `prisma migrate deploy` (module `job`) |
+| The app | Next.js, Server Actions, Zod and Prisma: add, move and delete cards across To do, Doing and Done |
 
 ## Roadmap
 
 | Stage | What |
 |---|---|
-| Done | Foundations: remote state, resource group, budget, monitoring, registry, Container Apps |
-| Next | PostgreSQL Flexible Server, then the kanban app (Next.js, Prisma), then deploy |
-| Then | Recurring cards: a daily Container App Job spawns upcoming cards and moves them to To do when the date passes |
+| Done | v1: foundations, database, the kanban app, containerised and deployed |
+| Next | Recurring cards: a daily Container App Job spawns upcoming cards and moves them to To do when the date passes |
 | Later | Sign-in (Entra ID), Key Vault, App Insights, private networking, CI/CD with GitHub Actions |
 
 ## Repo layout
 
 ```
-app/                  Next.js app (scaffold so far)
+app/                  Next.js kanban app, Dockerfile, Prisma schema and migrations
 infra/                Terraform root module
   modules/
     monitoring/       Log Analytics workspace
     registry/         Container Registry, pull identity, role assignment
     app/              Container Apps environment and app
+    database/         PostgreSQL Flexible Server and database
+    job/              Container App Job (migrations)
 docs/                 Design spec
+docker-compose.yml    Local Postgres for development
 ```
 
 ## Running it yourself
@@ -95,13 +105,14 @@ terraform plan -out main.tfplan
 terraform apply main.tfplan
 ```
 
-4. Push an image to the new registry and the app will serve it at the `app_url` output.
+4. The app needs its images in the registry before it can start, so create the registry first (`terraform apply -target=module.registry`), then build for `linux/amd64` and push `squaredup-app` and `squaredup-migrate` (the `runner` and `migrate` targets of `app/Dockerfile`), then run the full `terraform apply`.
+5. Create the tables by starting the migration job (`az containerapp job start`, using the `migrate_job_name` output). The site is at the `app_url` output.
 
 Tear it down with `terraform destroy`. The state storage lives outside the config, so it survives.
 
 ## Cost
 
-A small Basic registry costs a few pence a day, the workspace has a daily ingestion cap, and the app scales to zero. Planned PostgreSQL is the main running cost, so the stack is meant to be destroyed between sessions.
+A small Basic registry costs a few pence a day, the workspace has a daily ingestion cap, and the app scales to zero. PostgreSQL is the main running cost (roughly 40 to 60 pence a day while it exists), so the stack is meant to be destroyed between sessions.
 
 ## How it's built
 
