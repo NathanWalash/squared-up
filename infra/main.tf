@@ -12,3 +12,13 @@ module "monitoring" {
   location            = azurerm_resource_group.app.location
   tags                = local.tags
 }
+
+module "registry" {
+  source = "./modules/registry"
+
+  name                = local.acr_name
+  identity_name       = "id-acrpull-${local.name_suffix}"
+  resource_group_name = azurerm_resource_group.app.name
+  location            = azurerm_resource_group.app.location
+  tags                = local.tags
+}
