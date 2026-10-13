@@ -1,0 +1,17 @@
+name: squaredup
+
+services:
+  db:
+    image: postgres:17
+    container_name: squaredup-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: squaredup
+    ports:
+      - "5433:5432"
+    volumes:
+      - squaredup-db-data:/var/lib/postgresql/data
+
+volumes:
+  squaredup-db-data:

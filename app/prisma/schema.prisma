@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CardStatus {
+  TODO
+  DOING
+  DONE
+}
+
+model Card {
+  id        Int        @id @default(autoincrement())
+  title     String
+  status    CardStatus @default(TODO)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
