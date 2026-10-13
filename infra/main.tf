@@ -38,3 +38,21 @@ module "app" {
 
   depends_on = [module.registry]
 }
+
+resource "random_password" "db_admin" {
+  length  = 24
+  special = false
+}
+
+module "database" {
+  source = "./modules/database"
+
+  server_name            = "psql-${local.name_suffix}-${local.acr_suffix}"
+  database_name          = "squaredup"
+  resource_group_name    = azurerm_resource_group.app.name
+  location               = azurerm_resource_group.app.location
+  tags                   = local.tags
+  administrator_login    = "squaredupadmin"
+  administrator_password = random_password.db_admin.result
+  client_ip              = var.client_ip
+}

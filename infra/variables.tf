@@ -31,3 +31,9 @@ variable "budget_amount" {
   default     = 20
   description = "Monthly budget in your billing currency."
 }
+
+variable "client_ip" {
+  type        = string
+  default     = null
+  description = "Your public IP, to allow connecting to the database from your laptop."
+}

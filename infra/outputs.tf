@@ -17,3 +17,11 @@ output "acr_name" {
 output "app_url" {
   value = "https://${module.app.fqdn}"
 }
+
+output "db_server_fqdn" {
+  value = module.database.server_fqdn
+}
+
+output "db_name" {
+  value = module.database.database_name
+}
