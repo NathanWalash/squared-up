@@ -1,0 +1,11 @@
+# Personal learning notes (kept locally, not pushed)
+/notes/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+*.tfvars
+!*.tfvars.example
