@@ -4,7 +4,23 @@ A small kanban board deployed to Azure with Terraform, built as a hands-on way t
 
 The infrastructure is built step by step in small modules. The app starts simple: three columns, cards you can move between them. Recurring and scheduled cards come after that.
 
-> **Status:** the Azure platform is built and running a placeholder container. The kanban app itself is not written yet.
+> **Status:** the Azure platform (including PostgreSQL) is built and running a placeholder container. The kanban app works locally and is not deployed yet.
+
+## Run the app locally
+
+You need Node.js and Docker. From the repo root:
+
+```bash
+docker compose up -d                  # Postgres on localhost:5433
+cd app
+cp .env.example .env
+npm install
+./node_modules/.bin/prisma migrate dev
+./node_modules/.bin/prisma generate
+npm run dev                           # http://localhost:3000
+```
+
+(If your checkout path contains a `:` character, npm cannot find `node_modules/.bin` programs by name. Call them by path as above, or check the code out somewhere without one.)
 
 ## Architecture (so far)
 
