@@ -49,3 +49,22 @@ variable "target_port" {
   default     = 80
   description = "Port the container listens on."
 }
+
+variable "secrets" {
+  type        = map(string)
+  default     = {}
+  sensitive   = true
+  description = "Container App secrets, as secret name => value."
+}
+
+variable "env" {
+  type        = map(string)
+  default     = {}
+  description = "Plain environment variables, as name => value."
+}
+
+variable "secret_env" {
+  type        = map(string)
+  default     = {}
+  description = "Environment variables backed by a secret, as variable name => secret name."
+}

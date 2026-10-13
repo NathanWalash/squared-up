@@ -4,6 +4,12 @@ resource "azurerm_container_app_environment" "this" {
   resource_group_name        = var.resource_group_name
   log_analytics_workspace_id = var.log_analytics_workspace_id
   tags                       = var.tags
+
+  # Azure always adds this profile. Declaring it stops Terraform trying to remove it.
+  workload_profile {
+    name                  = "Consumption"
+    workload_profile_type = "Consumption"
+  }
 }
 
 resource "azurerm_container_app" "this" {
@@ -11,6 +17,7 @@ resource "azurerm_container_app" "this" {
   container_app_environment_id = azurerm_container_app_environment.this.id
   resource_group_name          = var.resource_group_name
   revision_mode                = "Single"
+  workload_profile_name        = "Consumption"
   tags                         = var.tags
 
   identity {
@@ -21,6 +28,16 @@ resource "azurerm_container_app" "this" {
   registry {
     server   = var.registry_login_server
     identity = var.identity_id
+  }
+
+  # for_each cannot loop over a sensitive value, so loop over the secret
+  # names (not sensitive) and look each value up.
+  dynamic "secret" {
+    for_each = nonsensitive(toset(keys(var.secrets)))
+    content {
+      name  = secret.value
+      value = var.secrets[secret.value]
+    }
   }
 
   ingress {
@@ -42,6 +59,22 @@ resource "azurerm_container_app" "this" {
       image  = var.image
       cpu    = 0.25
       memory = "0.5Gi"
+
+      dynamic "env" {
+        for_each = var.env
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.secret_env
+        content {
+          name        = env.key
+          secret_name = env.value
+        }
+      }
     }
   }
 }

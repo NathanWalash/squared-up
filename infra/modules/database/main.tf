@@ -9,6 +9,12 @@ resource "azurerm_postgresql_flexible_server" "this" {
   storage_mb             = var.storage_mb
   backup_retention_days  = 7
   tags                   = var.tags
+
+  # Azure picks an availability zone when the server is created. Ignore it,
+  # so Terraform does not try to change it back to "none".
+  lifecycle {
+    ignore_changes = [zone]
+  }
 }
 
 resource "azurerm_postgresql_flexible_server_database" "this" {

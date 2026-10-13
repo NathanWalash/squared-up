@@ -32,6 +32,12 @@ variable "budget_amount" {
   description = "Monthly budget in your billing currency."
 }
 
+variable "image_tag" {
+  type        = string
+  default     = "v1"
+  description = "Tag of the squaredup-app and squaredup-migrate images in the registry."
+}
+
 variable "client_ip" {
   type        = string
   default     = null

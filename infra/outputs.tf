@@ -18,6 +18,10 @@ output "app_url" {
   value = "https://${module.app.fqdn}"
 }
 
+output "migrate_job_name" {
+  value = module.migrate_job.name
+}
+
 output "db_server_fqdn" {
   value = module.database.server_fqdn
 }
