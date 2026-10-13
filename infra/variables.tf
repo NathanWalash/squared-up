@@ -4,8 +4,30 @@ variable "resource_group_location" {
   description = "Location of the resource group."
 }
 
-variable "resource_group_name" {
+variable "project" {
   type        = string
-  default     = "rg-squaredup-dev"
-  description = "Name of the app's resource group."
+  default     = "squaredup"
+  description = "Project name, used in resource names and tags."
+}
+
+variable "environment" {
+  type        = string
+  default     = "dev"
+  description = "Environment name."
+
+  validation {
+    condition     = contains(["dev", "test", "prod"], var.environment)
+    error_message = "environment must be dev, test or prod."
+  }
+}
+
+variable "alert_email" {
+  type        = string
+  description = "Email address for budget alerts."
+}
+
+variable "budget_amount" {
+  type        = number
+  default     = 20
+  description = "Monthly budget in your billing currency."
 }

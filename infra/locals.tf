@@ -1,0 +1,9 @@
+locals {
+  name_suffix = "${var.project}-${var.environment}"
+
+  tags = {
+    project     = var.project
+    environment = var.environment
+    managed_by  = "terraform"
+  }
+}
