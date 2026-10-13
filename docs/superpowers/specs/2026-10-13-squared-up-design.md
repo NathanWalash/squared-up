@@ -63,7 +63,7 @@ Get the simplest possible kanban deployed to Azure with Terraform. Only then add
 
 - Personal Azure free account ($200 credit, 30 days), subscription "Azure subscription 1", personal tenant
 - Region: uksouth, or the nearest region that works
-- Patterns may be borrowed from the work project's infrastructure, but no code is copied from it
+- All Terraform and app code is written from scratch for this project, following public documentation
 
 ## Learning method
 
@@ -102,3 +102,7 @@ Then v1.1 (the scheduled job) and the "Later" items, one lesson each.
 - Azure CLI logged in with the personal account.
 - State storage bootstrapped by hand, all providers registered.
 - Lessons 1 and 2 applied and committed: `rg-squaredup-dev` with tags, and a monthly budget with four alerts.
+- Lesson 3: `monitoring` module (Log Analytics workspace).
+- Lesson 4: `registry` module (Container Registry, user-assigned identity with `AcrPull`), and a test image pushed.
+- Lesson 5: `app` module (Container Apps environment and app) serving the test image over HTTPS.
+- Next: PostgreSQL (lesson 6), then the kanban app (lesson 7) and deploy (lesson 8).
