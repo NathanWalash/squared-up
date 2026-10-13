@@ -13,3 +13,7 @@ output "acr_login_server" {
 output "acr_name" {
   value = module.registry.registry_name
 }
+
+output "app_url" {
+  value = "https://${module.app.fqdn}"
+}
